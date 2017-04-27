@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2101 Alibaba Group Holding Ltd.
+ * Copyright 1999-2017 Alibaba Group Holding Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,11 +59,8 @@ import com.alibaba.druid.sql.dialect.oracle.ast.expr.OracleArgumentExpr;
 import com.alibaba.druid.sql.dialect.oracle.ast.expr.OracleBinaryDoubleExpr;
 import com.alibaba.druid.sql.dialect.oracle.ast.expr.OracleBinaryFloatExpr;
 import com.alibaba.druid.sql.dialect.oracle.ast.expr.OracleCursorExpr;
-import com.alibaba.druid.sql.ast.expr.SQLDateExpr;
-import com.alibaba.druid.sql.dialect.oracle.ast.expr.OracleDateTimeUnit;
 import com.alibaba.druid.sql.dialect.oracle.ast.expr.OracleDatetimeExpr;
 import com.alibaba.druid.sql.dialect.oracle.ast.expr.OracleDbLinkExpr;
-import com.alibaba.druid.sql.dialect.oracle.ast.expr.OracleExtractExpr;
 import com.alibaba.druid.sql.dialect.oracle.ast.expr.OracleIntervalExpr;
 import com.alibaba.druid.sql.dialect.oracle.ast.expr.OracleIntervalType;
 import com.alibaba.druid.sql.dialect.oracle.ast.expr.OracleIsSetExpr;
@@ -325,22 +322,6 @@ public class OracleExprParser extends SQLExprParser {
                 String alias = '"' + lexer.stringVal() + '"';
                 lexer.nextToken();
                 return primaryRest(new SQLIdentifierExpr(alias));
-            case EXTRACT:
-                lexer.nextToken();
-                OracleExtractExpr extract = new OracleExtractExpr();
-
-                accept(Token.LPAREN);
-
-                extract.setUnit(OracleDateTimeUnit.valueOf(lexer.stringVal().toUpperCase()));
-                lexer.nextToken();
-
-                accept(Token.FROM);
-
-                extract.setFrom(expr());
-
-                accept(Token.RPAREN);
-
-                return primaryRest(extract);
             case BINARY_FLOAT:
                 OracleBinaryFloatExpr floatExpr = new OracleBinaryFloatExpr();
                 floatExpr.setValue(Float.parseFloat(lexer.numberString()));
@@ -881,36 +862,6 @@ public class OracleExprParser extends SQLExprParser {
     @Override
     public OracleSelectParser createSelectParser() {
         return new OracleSelectParser(this);
-    }
-
-    @Override
-    public SQLSelectOrderByItem parseSelectOrderByItem() {
-        SQLSelectOrderByItem item = new SQLSelectOrderByItem();
-
-        item.setExpr(expr());
-
-        if (lexer.token() == (Token.ASC)) {
-            lexer.nextToken();
-            item.setType(SQLOrderingSpecification.ASC);
-        } else if (lexer.token() == (Token.DESC)) {
-            lexer.nextToken();
-            item.setType(SQLOrderingSpecification.DESC);
-        }
-
-        if (identifierEquals("NULLS")) {
-            lexer.nextToken();
-            if (identifierEquals("FIRST")) {
-                lexer.nextToken();
-                item.setNullsOrderType(SQLSelectOrderByItem.NullsOrderType.NullsFirst);
-            } else if (identifierEquals("LAST")) {
-                lexer.nextToken();
-                item.setNullsOrderType(SQLSelectOrderByItem.NullsOrderType.NullsLast);
-            } else {
-                throw new ParserException("TODO " + lexer.token());
-            }
-        }
-
-        return item;
     }
 
     protected SQLExpr parseInterval() {
