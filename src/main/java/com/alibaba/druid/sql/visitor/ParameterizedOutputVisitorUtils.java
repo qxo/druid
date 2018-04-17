@@ -218,7 +218,7 @@ public class ParameterizedOutputVisitorUtils {
         }
 
         // ID = ? OR ID = ? => ID = ?
-        if (x.getOperator() == SQLBinaryOperator.BooleanOr) {
+        if (false && x.getOperator() == SQLBinaryOperator.BooleanOr) {
             if ((x.getLeft() instanceof SQLBinaryOpExpr) && (x.getRight() instanceof SQLBinaryOpExpr)) {
                 SQLBinaryOpExpr leftBinary = (SQLBinaryOpExpr) x.getLeft();
                 SQLBinaryOpExpr rightBinary = (SQLBinaryOpExpr) x.getRight();

@@ -31,7 +31,11 @@ public class ExportAndParameterizedVisitorTestCase extends TestCase {
     public void testParameterizedVisitor() {
         // final String sql =
         // "insert  into tab01(a,b,c) values('a1','bXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX1',5)";
-        Object[][] sqlAndExpectedCases = { { "insert  into tab01(a,b,c) values('a1','b1',5)", 3, "a1" },
+        Object[][] sqlAndExpectedCases = { 
+        		{"select * from test_tab1 where name='1' or name='3'",2,1},
+        		
+        		{"select * from test_tab1 where state=1 or state=3",2,1},
+        		{ "insert  into tab01(a,b,c) values('a1','b1',5)", 3, "a1" },
         		{"select * from test_tab1 where name='name' and id in  ('A','B')",3,"name"},
         		{"select * from test_tab1 where name='name' and id in  ('A','B')",3,"name",2},
         		{ "select * from tab01 where a=1 and b='b1'", 2, 1 }, 
