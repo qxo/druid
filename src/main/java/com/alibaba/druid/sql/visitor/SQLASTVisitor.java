@@ -24,6 +24,8 @@ import com.alibaba.druid.sql.ast.statement.SQLCommitStatement;
 
 public interface SQLASTVisitor {
 
+    boolean isEnabled(VisitorFeature feature);
+
     void endVisit(SQLAllColumnExpr x);
 
     void endVisit(SQLBetweenExpr x);

@@ -25,7 +25,7 @@ public enum  VisitorFeature {
     OutputSkipInsertColumnsString,
     OutputParameterizedQuesUnMergeInList,
     OutputParameterizedQuesUnMergeOr,
-
+    MergeBooleanOr,
     /**
      * @deprecated
      */
