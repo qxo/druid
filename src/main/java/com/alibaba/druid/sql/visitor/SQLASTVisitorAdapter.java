@@ -26,7 +26,10 @@ import com.alibaba.druid.sql.ast.statement.SQLDeclareStatement;
 import com.alibaba.druid.sql.ast.statement.SQLCommitStatement;
 
 public class SQLASTVisitorAdapter implements SQLASTVisitor {
-    protected int features;
+	
+    protected static final boolean  DEFAULT_MERGE_BOOLEAN_OR = Boolean.getBoolean("druid.MergeBooleanOr");
+
+    protected int features = DEFAULT_MERGE_BOOLEAN_OR ? VisitorFeature.MergeBooleanOr.mask : 0 ;
 
     public void endVisit(SQLAllColumnExpr x) {
     }
