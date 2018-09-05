@@ -801,11 +801,15 @@ public class DruidDataSource extends DruidAbstractDataSource implements DruidDat
             return;
         }
 
-        String threadName = "Druid-ConnectionPool-Log-" + System.identityHashCode(this);
+        String threadName = genThreadName("Druid-ConnectionPool-Log-");
         logStatsThread = new LogStatsThread(threadName);
         logStatsThread.start();
 
         this.resetStatEnable = false;
+    }
+
+    protected String genThreadName(final String key){
+        return key+	System.identityHashCode(this);
     }
 
     protected void createAndStartDestroyThread() {
@@ -822,14 +826,14 @@ public class DruidDataSource extends DruidAbstractDataSource implements DruidDat
             return;
         }
 
-        String threadName = "Druid-ConnectionPool-Destroy-" + System.identityHashCode(this);
+        String threadName = genThreadName("Druid-ConnectionPool-Destroy-");
         destroyConnectionThread = new DestroyConnectionThread(threadName);
         destroyConnectionThread.start();
     }
 
     protected void createAndStartCreatorThread() {
         if (createScheduler == null) {
-            String threadName = "Druid-ConnectionPool-Create-" + System.identityHashCode(this);
+            String threadName = genThreadName("Druid-ConnectionPool-Create-");
             createConnectionThread = new CreateConnectionThread(threadName);
             createConnectionThread.start();
             return;
