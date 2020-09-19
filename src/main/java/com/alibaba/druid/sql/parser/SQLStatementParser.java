@@ -15,7 +15,6 @@
  */
 package com.alibaba.druid.sql.parser;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,12 +27,93 @@ import com.alibaba.druid.sql.ast.expr.SQLCharExpr;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.ast.expr.SQLVariantRefExpr;
-import com.alibaba.druid.sql.ast.statement.*;
+import com.alibaba.druid.sql.ast.statement.SQLAlterTableAddColumn;
+import com.alibaba.druid.sql.ast.statement.SQLAlterTableAddConstraint;
+import com.alibaba.druid.sql.ast.statement.SQLAlterTableAddIndex;
+import com.alibaba.druid.sql.ast.statement.SQLAlterTableAddPartition;
+import com.alibaba.druid.sql.ast.statement.SQLAlterTableAlterColumn;
+import com.alibaba.druid.sql.ast.statement.SQLAlterTableDisableConstraint;
+import com.alibaba.druid.sql.ast.statement.SQLAlterTableDisableKeys;
+import com.alibaba.druid.sql.ast.statement.SQLAlterTableDisableLifecycle;
+import com.alibaba.druid.sql.ast.statement.SQLAlterTableDropColumnItem;
+import com.alibaba.druid.sql.ast.statement.SQLAlterTableDropConstraint;
+import com.alibaba.druid.sql.ast.statement.SQLAlterTableDropIndex;
+import com.alibaba.druid.sql.ast.statement.SQLAlterTableDropPartition;
+import com.alibaba.druid.sql.ast.statement.SQLAlterTableEnableConstraint;
+import com.alibaba.druid.sql.ast.statement.SQLAlterTableEnableKeys;
+import com.alibaba.druid.sql.ast.statement.SQLAlterTableEnableLifecycle;
+import com.alibaba.druid.sql.ast.statement.SQLAlterTableItem;
+import com.alibaba.druid.sql.ast.statement.SQLAlterTableRename;
+import com.alibaba.druid.sql.ast.statement.SQLAlterTableRenameColumn;
+import com.alibaba.druid.sql.ast.statement.SQLAlterTableRenamePartition;
+import com.alibaba.druid.sql.ast.statement.SQLAlterTableSetComment;
+import com.alibaba.druid.sql.ast.statement.SQLAlterTableSetLifecycle;
+import com.alibaba.druid.sql.ast.statement.SQLAlterTableStatement;
+import com.alibaba.druid.sql.ast.statement.SQLAlterTableTouch;
+import com.alibaba.druid.sql.ast.statement.SQLAlterViewRenameStatement;
+import com.alibaba.druid.sql.ast.statement.SQLAssignItem;
+import com.alibaba.druid.sql.ast.statement.SQLCallStatement;
+import com.alibaba.druid.sql.ast.statement.SQLCheck;
+import com.alibaba.druid.sql.ast.statement.SQLCloseStatement;
+import com.alibaba.druid.sql.ast.statement.SQLColumnDefinition;
+import com.alibaba.druid.sql.ast.statement.SQLCommentStatement;
+import com.alibaba.druid.sql.ast.statement.SQLConstraint;
+import com.alibaba.druid.sql.ast.statement.SQLCreateDatabaseStatement;
+import com.alibaba.druid.sql.ast.statement.SQLCreateIndexStatement;
+import com.alibaba.druid.sql.ast.statement.SQLCreateProcedureStatement;
+import com.alibaba.druid.sql.ast.statement.SQLCreateTableStatement;
+import com.alibaba.druid.sql.ast.statement.SQLCreateTriggerStatement;
 import com.alibaba.druid.sql.ast.statement.SQLCreateTriggerStatement.TriggerEvent;
 import com.alibaba.druid.sql.ast.statement.SQLCreateTriggerStatement.TriggerType;
+import com.alibaba.druid.sql.ast.statement.SQLCreateViewStatement;
+import com.alibaba.druid.sql.ast.statement.SQLDeleteStatement;
+import com.alibaba.druid.sql.ast.statement.SQLDescribeStatement;
+import com.alibaba.druid.sql.ast.statement.SQLDropDatabaseStatement;
+import com.alibaba.druid.sql.ast.statement.SQLDropFunctionStatement;
+import com.alibaba.druid.sql.ast.statement.SQLDropIndexStatement;
+import com.alibaba.druid.sql.ast.statement.SQLDropProcedureStatement;
+import com.alibaba.druid.sql.ast.statement.SQLDropSequenceStatement;
+import com.alibaba.druid.sql.ast.statement.SQLDropTableSpaceStatement;
+import com.alibaba.druid.sql.ast.statement.SQLDropTableStatement;
+import com.alibaba.druid.sql.ast.statement.SQLDropTriggerStatement;
+import com.alibaba.druid.sql.ast.statement.SQLDropUserStatement;
+import com.alibaba.druid.sql.ast.statement.SQLDropViewStatement;
+import com.alibaba.druid.sql.ast.statement.SQLErrorLoggingClause;
+import com.alibaba.druid.sql.ast.statement.SQLExplainStatement;
+import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
+import com.alibaba.druid.sql.ast.statement.SQLFetchStatement;
+import com.alibaba.druid.sql.ast.statement.SQLGrantStatement;
+import com.alibaba.druid.sql.ast.statement.SQLInsertInto;
+import com.alibaba.druid.sql.ast.statement.SQLInsertStatement;
+import com.alibaba.druid.sql.ast.statement.SQLMergeStatement;
+import com.alibaba.druid.sql.ast.statement.SQLObjectType;
+import com.alibaba.druid.sql.ast.statement.SQLOpenStatement;
+import com.alibaba.druid.sql.ast.statement.SQLPrimaryKey;
+import com.alibaba.druid.sql.ast.statement.SQLReleaseSavePointStatement;
+import com.alibaba.druid.sql.ast.statement.SQLRevokeStatement;
+import com.alibaba.druid.sql.ast.statement.SQLRollbackStatement;
+import com.alibaba.druid.sql.ast.statement.SQLSavePointStatement;
+import com.alibaba.druid.sql.ast.statement.SQLSelect;
+import com.alibaba.druid.sql.ast.statement.SQLSelectOrderByItem;
+import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
+import com.alibaba.druid.sql.ast.statement.SQLSetStatement;
+import com.alibaba.druid.sql.ast.statement.SQLSubqueryTableSource;
+import com.alibaba.druid.sql.ast.statement.SQLTableSource;
+import com.alibaba.druid.sql.ast.statement.SQLTruncateStatement;
+import com.alibaba.druid.sql.ast.statement.SQLUpdateSetItem;
+import com.alibaba.druid.sql.ast.statement.SQLUpdateStatement;
+import com.alibaba.druid.sql.ast.statement.SQLUseStatement;
 import com.alibaba.druid.util.JdbcConstants;
 
 public class SQLStatementParser extends SQLParser {
+
+    /**
+     * 标识变量，默认SQL解析结束后核对输入SQL是否解析结束了，预防程序BUG导致SQL被意外截断，
+     * 造成如数据库表被全删除了此类严重安全事故.默认启用此特，如要禁用则需要设置jvm参数:
+     * `-Ddruid_sql_parser_end_assert_off=true`
+     */
+    private static final boolean PARSER_END_ASSERT = 
+        !Boolean.getBoolean("druid_sql_parser_end_assert_off");
 
     protected SQLExprParser exprParser;
 
@@ -2079,25 +2159,29 @@ public class SQLStatementParser extends SQLParser {
         }
         return item;
     }
-    
+
     public SQLStatement parseStatement() {
-        return parseStatement(false);
+        return parseStatement(PARSER_END_ASSERT);
     }
-    
+
     /**
-    * @param tryBest  - 为true去解析并忽略之后的错误
-    *  强制建议除非明确知道可以忽略才传tryBest=true,
+    *  强制建议除非明确知道可以忽略才传failIfSyntaxError=false,
     *  不然会忽略语法错误，且截断sql,导致update和delete无where条件下执行！！！
+    *
+    * @param failIfSyntaxError - 为false去解析并忽略之后的错误
     */
-    public SQLStatement parseStatement( final boolean tryBest) {
+    public SQLStatement parseStatement(final boolean failIfSyntaxError) {
         List<SQLStatement> list = new ArrayList<SQLStatement>();
         this.parseStatementList(list, 1);
-        if (tryBest) {
+        final SQLStatement ret = list.get(0);
+        if (failIfSyntaxError) {
             if (lexer.token() != Token.EOF) {
-                throw new ParserException("sql syntax error, no terminated. " + lexer.token());
+                throw new ParserException("parse not end, sql syntax may error!lexer.token: "
+                    + lexer.token + " pos: " + lexer.pos + " src sql: " + lexer.text
+                    + " but was: " + ret);
             }
         }
-        return list.get(0);
+        return ret;
     }
 
     public SQLExplainStatement parseExplain() {
